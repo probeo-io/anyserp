@@ -97,12 +97,18 @@ export interface ProviderConfig {
   engineId?: string;     // Google CSE engine ID
 }
 
+export interface DataForSeoConfig {
+  login?: string;
+  password?: string;
+}
+
 export interface AnySerpConfig {
   serper?: ProviderConfig;
   serpapi?: ProviderConfig;
   google?: ProviderConfig;
   bing?: ProviderConfig;
   brave?: ProviderConfig;
+  dataforseo?: DataForSeoConfig;
   custom?: Record<string, { baseURL: string; apiKey?: string }>;
   defaults?: {
     num?: number;

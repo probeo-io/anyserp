@@ -5,6 +5,7 @@ import { createSerpApiAdapter } from './providers/serpapi.js';
 import { createGoogleAdapter } from './providers/google.js';
 import { createBingAdapter } from './providers/bing.js';
 import { createBraveAdapter } from './providers/brave.js';
+import { createDataForSeoAdapter } from './providers/dataforseo.js';
 
 export class AnySerpRegistry {
   private adapters = new Map<string, SearchAdapter>();
@@ -70,6 +71,13 @@ export class AnySerp {
     const braveKey = config.brave?.apiKey || process.env.BRAVE_API_KEY;
     if (braveKey) {
       this.registry.register('brave', createBraveAdapter(braveKey));
+    }
+
+    // DataForSEO
+    const dfLogin = config.dataforseo?.login || process.env.DATAFORSEO_LOGIN;
+    const dfPassword = config.dataforseo?.password || process.env.DATAFORSEO_PASSWORD;
+    if (dfLogin && dfPassword) {
+      this.registry.register('dataforseo', createDataForSeoAdapter(dfLogin, dfPassword));
     }
   }
 

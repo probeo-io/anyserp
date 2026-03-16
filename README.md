@@ -36,6 +36,7 @@ console.log(results.results[0].title, results.results[0].url);
 | Google CSE | `GOOGLE_CSE_API_KEY` + `GOOGLE_CSE_ENGINE_ID` | Yes | Yes | No | No |
 | Bing | `BING_API_KEY` | Yes | Yes | Yes | Yes |
 | Brave | `BRAVE_API_KEY` | Yes | Yes | Yes | Yes |
+| DataForSEO | `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD` | Yes | No | Yes | No |
 
 ## Provider Routing
 
@@ -133,6 +134,7 @@ const client = new AnySerp({
   serper: { apiKey: "..." },
   brave: { apiKey: "..." },
   google: { apiKey: "...", engineId: "..." },
+  dataforseo: { login: "...", password: "..." },
   defaults: {
     num: 10,
     country: "us",
@@ -155,6 +157,8 @@ export GOOGLE_CSE_API_KEY=...
 export GOOGLE_CSE_ENGINE_ID=...
 export BING_API_KEY=...
 export BRAVE_API_KEY=...
+export DATAFORSEO_LOGIN=...
+export DATAFORSEO_PASSWORD=...
 ```
 
 ## License

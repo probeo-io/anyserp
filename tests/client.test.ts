@@ -67,6 +67,13 @@ describe('AnySerp', () => {
     expect(results).toEqual([]);
   });
 
+  it('registers dataforseo with login and password', () => {
+    const client = new AnySerp({
+      dataforseo: { login: 'user', password: 'pass' },
+    });
+    expect(client.providers()).toEqual(['dataforseo']);
+  });
+
   it('applies defaults from config', async () => {
     const client = new AnySerp({
       serper: { apiKey: 'test' },

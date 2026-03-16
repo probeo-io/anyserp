@@ -11,6 +11,7 @@ export type {
   AnySerpConfig,
   ProviderConfig,
   AnySerpErrorMetadata,
+  DataForSeoConfig,
 } from './types.js';
 export { AnySerpError } from './types.js';
 export {
@@ -19,4 +20,5 @@ export {
   createGoogleAdapter,
   createBingAdapter,
   createBraveAdapter,
+  createDataForSeoAdapter,
 } from './providers/index.js';
