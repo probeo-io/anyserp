@@ -81,6 +81,58 @@ describe('AnySerp', () => {
     });
     expect(client.providers()).toContain('serper');
   });
+
+  it('registers searchapi with api key', () => {
+    const client = new AnySerp({
+      searchapi: { apiKey: 'test-key' },
+    });
+    expect(client.providers()).toEqual(['searchapi']);
+  });
+
+  it('registers valueserp with api key', () => {
+    const client = new AnySerp({
+      valueserp: { apiKey: 'test-key' },
+    });
+    expect(client.providers()).toEqual(['valueserp']);
+  });
+
+  it('registers scrapingdog with api key', () => {
+    const client = new AnySerp({
+      scrapingdog: { apiKey: 'test-key' },
+    });
+    expect(client.providers()).toEqual(['scrapingdog']);
+  });
+
+  it('registers brightdata with api key', () => {
+    const client = new AnySerp({
+      brightdata: { apiKey: 'test-key' },
+    });
+    expect(client.providers()).toEqual(['brightdata']);
+  });
+
+  it('registers searchcans with api key', () => {
+    const client = new AnySerp({
+      searchcans: { apiKey: 'test-key' },
+    });
+    expect(client.providers()).toEqual(['searchcans']);
+  });
+
+  it('registers all providers at once', () => {
+    const client = new AnySerp({
+      serper: { apiKey: 'k' },
+      serpapi: { apiKey: 'k' },
+      google: { apiKey: 'k', engineId: 'e' },
+      bing: { apiKey: 'k' },
+      brave: { apiKey: 'k' },
+      dataforseo: { login: 'u', password: 'p' },
+      searchapi: { apiKey: 'k' },
+      valueserp: { apiKey: 'k' },
+      scrapingdog: { apiKey: 'k' },
+      brightdata: { apiKey: 'k' },
+      searchcans: { apiKey: 'k' },
+    });
+    expect(client.providers()).toHaveLength(11);
+  });
 });
 
 describe('AnySerpError', () => {

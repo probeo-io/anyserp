@@ -4,3 +4,8 @@ export { createGoogleAdapter } from './google.js';
 export { createBingAdapter } from './bing.js';
 export { createBraveAdapter } from './brave.js';
 export { createDataForSeoAdapter } from './dataforseo.js';
+export { createSearchApiAdapter } from './searchapi.js';
+export { createValueSerpAdapter } from './valueserp.js';
+export { createScrapingDogAdapter } from './scrapingdog.js';
+export { createBrightDataAdapter } from './brightdata.js';
+export { createSearchCansAdapter } from './searchcans.js';

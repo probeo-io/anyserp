@@ -21,4 +21,9 @@ export {
   createBingAdapter,
   createBraveAdapter,
   createDataForSeoAdapter,
+  createSearchApiAdapter,
+  createValueSerpAdapter,
+  createScrapingDogAdapter,
+  createBrightDataAdapter,
+  createSearchCansAdapter,
 } from './providers/index.js';

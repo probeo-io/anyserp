@@ -37,6 +37,11 @@ console.log(results.results[0].title, results.results[0].url);
 | Bing | `BING_API_KEY` | Yes | Yes | Yes | Yes |
 | Brave | `BRAVE_API_KEY` | Yes | Yes | Yes | Yes |
 | DataForSEO | `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD` | Yes | No | Yes | No |
+| SearchAPI | `SEARCHAPI_API_KEY` | Yes | Yes | Yes | Yes |
+| ValueSERP | `VALUESERP_API_KEY` | Yes | Yes | Yes | Yes |
+| ScrapingDog | `SCRAPINGDOG_API_KEY` | Yes | Yes | Yes | No |
+| Bright Data | `BRIGHTDATA_API_KEY` | Yes | Yes | Yes | Yes |
+| SearchCans | `SEARCHCANS_API_KEY` | Yes | No | Yes | No |
 
 ## Provider Routing
 
@@ -135,6 +140,11 @@ const client = new AnySerp({
   brave: { apiKey: "..." },
   google: { apiKey: "...", engineId: "..." },
   dataforseo: { login: "...", password: "..." },
+  searchapi: { apiKey: "..." },
+  valueserp: { apiKey: "..." },
+  scrapingdog: { apiKey: "..." },
+  brightdata: { apiKey: "..." },
+  searchcans: { apiKey: "..." },
   defaults: {
     num: 10,
     country: "us",
@@ -159,6 +169,11 @@ export BING_API_KEY=...
 export BRAVE_API_KEY=...
 export DATAFORSEO_LOGIN=...
 export DATAFORSEO_PASSWORD=...
+export SEARCHAPI_API_KEY=...
+export VALUESERP_API_KEY=...
+export SCRAPINGDOG_API_KEY=...
+export BRIGHTDATA_API_KEY=...
+export SEARCHCANS_API_KEY=...
 ```
 
 ## License

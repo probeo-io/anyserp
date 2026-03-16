@@ -6,6 +6,11 @@ import { createGoogleAdapter } from './providers/google.js';
 import { createBingAdapter } from './providers/bing.js';
 import { createBraveAdapter } from './providers/brave.js';
 import { createDataForSeoAdapter } from './providers/dataforseo.js';
+import { createSearchApiAdapter } from './providers/searchapi.js';
+import { createValueSerpAdapter } from './providers/valueserp.js';
+import { createScrapingDogAdapter } from './providers/scrapingdog.js';
+import { createBrightDataAdapter } from './providers/brightdata.js';
+import { createSearchCansAdapter } from './providers/searchcans.js';
 
 export class AnySerpRegistry {
   private adapters = new Map<string, SearchAdapter>();
@@ -78,6 +83,36 @@ export class AnySerp {
     const dfPassword = config.dataforseo?.password || process.env.DATAFORSEO_PASSWORD;
     if (dfLogin && dfPassword) {
       this.registry.register('dataforseo', createDataForSeoAdapter(dfLogin, dfPassword));
+    }
+
+    // SearchAPI
+    const searchApiKey = config.searchapi?.apiKey || process.env.SEARCHAPI_API_KEY;
+    if (searchApiKey) {
+      this.registry.register('searchapi', createSearchApiAdapter(searchApiKey));
+    }
+
+    // ValueSERP
+    const valueSerpKey = config.valueserp?.apiKey || process.env.VALUESERP_API_KEY;
+    if (valueSerpKey) {
+      this.registry.register('valueserp', createValueSerpAdapter(valueSerpKey));
+    }
+
+    // ScrapingDog
+    const scrapingDogKey = config.scrapingdog?.apiKey || process.env.SCRAPINGDOG_API_KEY;
+    if (scrapingDogKey) {
+      this.registry.register('scrapingdog', createScrapingDogAdapter(scrapingDogKey));
+    }
+
+    // Bright Data
+    const brightDataKey = config.brightdata?.apiKey || process.env.BRIGHTDATA_API_KEY;
+    if (brightDataKey) {
+      this.registry.register('brightdata', createBrightDataAdapter(brightDataKey));
+    }
+
+    // SearchCans
+    const searchCansKey = config.searchcans?.apiKey || process.env.SEARCHCANS_API_KEY;
+    if (searchCansKey) {
+      this.registry.register('searchcans', createSearchCansAdapter(searchCansKey));
     }
   }
 

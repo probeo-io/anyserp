@@ -109,6 +109,11 @@ export interface AnySerpConfig {
   bing?: ProviderConfig;
   brave?: ProviderConfig;
   dataforseo?: DataForSeoConfig;
+  searchapi?: ProviderConfig;
+  valueserp?: ProviderConfig;
+  scrapingdog?: ProviderConfig;
+  brightdata?: ProviderConfig;
+  searchcans?: ProviderConfig;
   custom?: Record<string, { baseURL: string; apiKey?: string }>;
   defaults?: {
     num?: number;

@@ -1,7 +1,7 @@
 {
   "name": "@probeo/anyserp",
-  "version": "0.1.0",
-  "description": "Unified SERP API router. Route search requests across Google, Bing, Brave, and more with a single API.",
+  "version": "0.2.0",
+  "description": "Unified SERP API router. 11 providers — Serper, SerpAPI, Google CSE, Bing, Brave, DataForSEO, SearchAPI, ValueSERP, ScrapingDog, Bright Data, SearchCans.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -34,6 +34,12 @@
     "brave",
     "serper",
     "serpapi",
+    "dataforseo",
+    "searchapi",
+    "valueserp",
+    "scrapingdog",
+    "brightdata",
+    "searchcans",
     "unified",
     "router"
   ],
