@@ -126,6 +126,15 @@ export function createSerpApiAdapter(apiKey: string): SearchAdapter {
         relatedSearches: data.related_searches?.map((r: any) => r.query),
       };
 
+      if (data.related_questions?.length) {
+        response.peopleAlsoAsk = data.related_questions.map((q: any) => ({
+          question: q.question || '',
+          snippet: q.snippet,
+          title: q.title,
+          url: q.link,
+        }));
+      }
+
       if (data.knowledge_graph) {
         const kg = data.knowledge_graph;
         response.knowledgePanel = {

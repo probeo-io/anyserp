@@ -24,8 +24,16 @@ export interface SearchResponse {
   totalResults?: number;
   searchTime?: number;    // ms
   relatedSearches?: string[];
+  peopleAlsoAsk?: PeopleAlsoAsk[];
   knowledgePanel?: KnowledgePanel;
   answerBox?: AnswerBox;
+}
+
+export interface PeopleAlsoAsk {
+  question: string;
+  snippet?: string;
+  title?: string;
+  url?: string;
 }
 
 export interface SearchResult {

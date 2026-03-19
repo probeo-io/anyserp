@@ -96,11 +96,22 @@ export function createScrapingDogAdapter(apiKey: string): SearchAdapter {
         }
       }
 
-      return {
+      const response: SearchResponse = {
         provider: 'scrapingdog',
         query: request.query,
         results,
       };
+
+      if (data.people_also_ask?.length) {
+        response.peopleAlsoAsk = data.people_also_ask.map((q: any) => ({
+          question: q.question || '',
+          snippet: q.snippet,
+          title: q.title,
+          url: q.link,
+        }));
+      }
+
+      return response;
     },
   };
 }

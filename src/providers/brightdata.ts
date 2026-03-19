@@ -130,6 +130,15 @@ export function createBrightDataAdapter(apiKey: string): SearchAdapter {
         };
       }
 
+      if (data.people_also_ask?.length) {
+        response.peopleAlsoAsk = data.people_also_ask.map((q: any) => ({
+          question: q.question || '',
+          snippet: q.snippet,
+          title: q.title,
+          url: q.link || q.url,
+        }));
+      }
+
       if (data.related_searches) {
         response.relatedSearches = data.related_searches.map((r: any) =>
           typeof r === 'string' ? r : r.query || r.title || '',

@@ -129,6 +129,8 @@ export function createDataForSeoAdapter(login: string, password: string): Search
               title: item.title,
               url: item.url,
             };
+          } else if (item.type === 'people_also_ask') {
+            // Handled below after loop
           } else if (item.type === 'news_search' && type === 'news') {
             // News items from the news endpoint
             position++;
@@ -154,6 +156,23 @@ export function createDataForSeoAdapter(login: string, password: string): Search
 
       if (knowledgePanel) response.knowledgePanel = knowledgePanel;
       if (answerBox) response.answerBox = answerBox;
+
+      const paaItems = resultData?.items?.filter((i: any) => i.type === 'people_also_ask');
+      if (paaItems?.length) {
+        const questions: any[] = [];
+        for (const paa of paaItems) {
+          if (paa.items) {
+            for (const q of paa.items) {
+              questions.push({
+                question: q.title || '',
+                snippet: q.description,
+                url: q.url,
+              });
+            }
+          }
+        }
+        if (questions.length) response.peopleAlsoAsk = questions;
+      }
 
       return response;
     },
