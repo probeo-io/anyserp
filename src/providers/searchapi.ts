@@ -1,4 +1,4 @@
-import type { SearchAdapter, SearchRequest, SearchResponse, SearchResult, SearchType, KnowledgePanel, AnswerBox } from '../types.js';
+import type { SearchAdapter, SearchRequest, SearchResponse, SearchResult, SearchType, KnowledgePanel, AnswerBox, AiOverview, AiOverviewTextBlock, AiOverviewReference } from '../types.js';
 import { AnySerpError } from '../types.js';
 
 const SEARCHAPI_BASE = 'https://www.searchapi.io/api/v1/search';
@@ -158,7 +158,97 @@ export function createSearchApiAdapter(apiKey: string): SearchAdapter {
         };
       }
 
+      // AI Overview: extract page_token from search results and optionally fetch full content
+      const pageToken = data.ai_overview?.page_token;
+      if (pageToken && request.includeAiOverview) {
+        try {
+          const aiData = await makeRequest({
+            engine: 'google_ai_overview',
+            page_token: pageToken,
+          });
+          response.aiOverview = mapAiOverview(aiData, pageToken);
+        } catch {
+          // AI overview fetch failed — don't fail the whole search
+        }
+      } else if (pageToken) {
+        // Still expose the page token so callers can fetch later
+        response.aiOverview = {
+          textBlocks: [],
+          references: [],
+          pageToken,
+        };
+      }
+
       return response;
     },
+  };
+}
+
+function mapTextBlock(block: any): AiOverviewTextBlock {
+  const mapped: AiOverviewTextBlock = {
+    type: block.type || 'paragraph',
+  };
+  if (block.answer) mapped.answer = block.answer;
+  if (block.answer_highlight) mapped.answerHighlight = block.answer_highlight;
+  if (block.link) mapped.link = block.link;
+  if (block.reference_indexes?.length) mapped.referenceIndexes = block.reference_indexes;
+  if (block.related_searches?.length) {
+    mapped.relatedSearches = block.related_searches.map((rs: any) => ({
+      query: rs.query || '',
+      link: rs.link,
+    }));
+  }
+
+  // Nested items (lists)
+  if (block.items?.length) {
+    mapped.items = block.items.map(mapTextBlock);
+  }
+
+  // Table
+  if (block.table) {
+    mapped.table = {
+      headers: block.table.headers || [],
+      rows: block.table.rows || [],
+    };
+  }
+
+  // Code
+  if (block.type === 'code_blocks') {
+    mapped.language = block.language;
+    mapped.code = block.code;
+  }
+
+  // Video
+  if (block.type === 'video') {
+    mapped.video = {
+      title: block.title,
+      link: block.link,
+      duration: block.duration,
+      source: block.source,
+      channel: block.channel,
+    };
+  }
+
+  return mapped;
+}
+
+function mapAiOverview(data: any, pageToken: string): AiOverview {
+  const textBlocks: AiOverviewTextBlock[] = (data.text_blocks || []).map(mapTextBlock);
+
+  const references: AiOverviewReference[] = (data.reference_links || []).map((ref: any) => ({
+    index: ref.index,
+    title: ref.title,
+    url: ref.link,
+    snippet: ref.snippet,
+    date: ref.date,
+    source: ref.source,
+    thumbnail: ref.thumbnail,
+  }));
+
+  return {
+    markdown: data.markdown,
+    textBlocks,
+    references,
+    pageToken,
   };
 }

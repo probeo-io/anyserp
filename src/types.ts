@@ -9,6 +9,8 @@ export interface SearchRequest {
   safe?: boolean;         // safe search
   type?: SearchType;      // web, images, news, videos
   dateRange?: DateRange;  // time filter
+  /** Fetch AI Overview content when available (requires SearchAPI). */
+  includeAiOverview?: boolean;
 }
 
 export type SearchType = 'web' | 'images' | 'news' | 'videos';
@@ -27,6 +29,44 @@ export interface SearchResponse {
   peopleAlsoAsk?: PeopleAlsoAsk[];
   knowledgePanel?: KnowledgePanel;
   answerBox?: AnswerBox;
+  aiOverview?: AiOverview;
+}
+
+// ─── AI Overview ──────────────────────────────────────────────────────────────
+
+export interface AiOverview {
+  /** Markdown-formatted AI overview content. */
+  markdown?: string;
+  /** Structured text blocks. */
+  textBlocks: AiOverviewTextBlock[];
+  /** Sources cited in the overview. */
+  references: AiOverviewReference[];
+  /** Page token used to fetch this overview (for caching/debugging). */
+  pageToken?: string;
+}
+
+export interface AiOverviewTextBlock {
+  type: 'paragraph' | 'header' | 'ordered_list' | 'unordered_list' | 'table' | 'code_blocks' | 'video';
+  /** The text content. */
+  answer?: string;
+  /** Highlighted portion of the answer. */
+  answerHighlight?: string;
+  /** Nested items (for list types). */
+  items?: AiOverviewTextBlock[];
+  /** Table data (for table type). */
+  table?: { headers: string[]; rows: string[][] };
+  /** Code language (for code_blocks type). */
+  language?: string;
+  /** Code content (for code_blocks type). */
+  code?: string;
+  /** Video metadata. */
+  video?: { title?: string; link?: string; duration?: string; source?: string; channel?: string };
+  /** Indexes into the references array. */
+  referenceIndexes?: number[];
+  /** Link associated with this block. */
+  link?: string;
+  /** Related searches within this block. */
+  relatedSearches?: { query: string; link?: string }[];
 }
 
 export interface PeopleAlsoAsk {
@@ -69,6 +109,16 @@ export interface AnswerBox {
   snippet: string;
   title?: string;
   url?: string;
+}
+
+export interface AiOverviewReference {
+  index: number;
+  title?: string;
+  url?: string;
+  snippet?: string;
+  date?: string;
+  source?: string;
+  thumbnail?: string;
 }
 
 // ─── Provider Adapter ────────────────────────────────────────────────────────
