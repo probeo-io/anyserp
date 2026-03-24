@@ -176,6 +176,40 @@ export BRIGHTDATA_API_KEY=...
 export SEARCHCANS_API_KEY=...
 ```
 
+## People Also Ask
+
+Available from 8 providers (Serper, SerpAPI, SearchAPI, ValueSERP, DataForSEO, ScrapingDog, Bright Data, SearchCans):
+
+```typescript
+const results = await client.search("how to start an LLC");
+for (const paa of results.peopleAlsoAsk ?? []) {
+  console.log(paa.question, paa.snippet);
+}
+```
+
+## AI Overview
+
+Fetch Google's AI-generated overview content (requires SearchAPI):
+
+```typescript
+const results = await client.search({
+  query: "how to start an LLC",
+  includeAiOverview: true,
+});
+
+if (results.aiOverview) {
+  console.log(results.aiOverview.markdown);
+  for (const ref of results.aiOverview.references) {
+    console.log(`  [${ref.index}] ${ref.title} - ${ref.url}`);
+  }
+}
+```
+
+## Also Available
+
+- **Python**: [`anyserp`](https://github.com/probeo-io/anyserp-py) on PyPI
+- **Go**: [`anyserp-go`](https://github.com/probeo-io/anyserp-go)
+
 ## License
 
 MIT
