@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-03-26
+
+### Added
+
+- AI Overview support via SearchAPI provider
+- `PeopleAlsoAsk` and `AiOverview` types exported from package
+
+## [0.3.0] - 2026-03-26
+
+### Added
+
+- People Also Ask (PAA) support across 8 providers
+
 ## [0.2.0] - 2026-03-16
 
 ### Added
