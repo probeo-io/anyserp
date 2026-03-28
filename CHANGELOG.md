@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Exhaustive test suite (199 tests across 12 files, covering all 11 providers)
+- "See Also" cross-links to related packages
+
 ## [0.4.0] - 2026-03-26
 
 ### Added
