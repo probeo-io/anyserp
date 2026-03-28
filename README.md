@@ -205,10 +205,14 @@ if (results.aiOverview) {
 }
 ```
 
-## Also Available
+## See Also
 
-- **Python**: [`anyserp`](https://github.com/probeo-io/anyserp-py) on PyPI
-- **Go**: [`anyserp-go`](https://github.com/probeo-io/anyserp-go)
+| Package | Description |
+|---|---|
+| [anyserp-py](https://github.com/probeo-io/anyserp-py) | Python version of this package |
+| [anyserp-go](https://github.com/probeo-io/anyserp-go) | Go version of this package |
+| [@probeo/anymodel](https://github.com/probeo-io/anymodel) | Unified LLM router for TypeScript |
+| [@probeo/workflow](https://github.com/probeo-io/workflow) | Stage-based pipeline engine for TypeScript |
 
 ## License
 
