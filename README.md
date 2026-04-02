@@ -1,6 +1,15 @@
 # @probeo/anyserp
 
+[![npm version](https://img.shields.io/npm/v/@probeo/anyserp)](https://www.npmjs.com/package/@probeo/anyserp)
+[![npm downloads](https://img.shields.io/npm/dm/@probeo/anyserp)](https://www.npmjs.com/package/@probeo/anyserp)
+[![license](https://img.shields.io/npm/l/@probeo/anyserp)](https://github.com/probeo-io/anyserp/blob/main/LICENSE)
+[![CI](https://github.com/probeo-io/anyserp/actions/workflows/ci.yml/badge.svg)](https://github.com/probeo-io/anyserp/actions/workflows/ci.yml)
+
 Unified SERP API router. Route search requests across Google, Bing, Brave, and more with a single API. Self-hosted, zero fees.
+
+## Why anyserp?
+
+One SDK, 11 SERP providers. Switch providers without changing your code. Every provider returns the same unified response format, so your application logic stays clean regardless of which provider is behind the request. Your API keys, your infrastructure, zero routing fees. Built-in fallback routing means if one provider fails, the next is tried automatically.
 
 ## Install
 
@@ -213,6 +222,10 @@ if (results.aiOverview) {
 | [anyserp-go](https://github.com/probeo-io/anyserp-go) | Go version of this package |
 | [@probeo/anymodel](https://github.com/probeo-io/anymodel) | Unified LLM router for TypeScript |
 | [@probeo/workflow](https://github.com/probeo-io/workflow) | Stage-based pipeline engine for TypeScript |
+
+## Support
+
+If anyserp is useful to you, consider giving it a star. It helps others discover the project.
 
 ## License
 
