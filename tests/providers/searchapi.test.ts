@@ -429,12 +429,12 @@ describe('SearchAPI adapter', () => {
 
   // ─── Places ─────────────────────────────────────────────────────────
 
-  it('sets engine=google_places for places search', async () => {
+  it('sets engine=google_maps for places search', async () => {
     mockFetch({ local_results: [] });
     const a = createSearchApiAdapter('k');
     await a.search({ query: 'tacos', type: 'places' });
     const url = new URL(fetchSpy.mock.calls[0][0] as string);
-    expect(url.searchParams.get('engine')).toBe('google_places');
+    expect(url.searchParams.get('engine')).toBe('google_maps');
   });
 
   it('maps local_results to SearchResult with places fields', async () => {

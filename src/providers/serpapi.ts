@@ -10,7 +10,7 @@ const ENGINE_MAP: Partial<Record<SearchType, string>> = {
   images: 'google_images',
   news: 'google_news',
   videos: 'google_videos',
-  places: 'google_places',
+  places: 'google_local',
 };
 
 const DATE_MAP: Record<string, string> = {

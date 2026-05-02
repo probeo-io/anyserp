@@ -290,12 +290,12 @@ describe('SerpAPI adapter', () => {
 
   // ─── Places ─────────────────────────────────────────────────────────
 
-  it('sets engine=google_places for places search', async () => {
+  it('sets engine=google_local for places search', async () => {
     mockFetch({ local_results: [] });
     const a = createSerpApiAdapter('k');
     await a.search({ query: 'pizza', type: 'places' });
     const url = new URL(fetchSpy.mock.calls[0][0] as string);
-    expect(url.searchParams.get('engine')).toBe('google_places');
+    expect(url.searchParams.get('engine')).toBe('google_local');
   });
 
   it('maps local_results to SearchResult with places fields', async () => {
