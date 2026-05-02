@@ -101,6 +101,7 @@ export interface SearchResult {
   placeType?: string;
   hours?: string;
   coordinates?: { lat: number; lng: number };
+  kgmid?: string;
 }
 
 export interface KnowledgePanel {

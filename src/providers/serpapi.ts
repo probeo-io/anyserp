@@ -133,6 +133,7 @@ export function createSerpApiAdapter(apiKey: string): SearchAdapter {
             coordinates: r.gps_coordinates
               ? { lat: r.gps_coordinates.latitude, lng: r.gps_coordinates.longitude }
               : undefined,
+            kgmid: r.kgmid,
           });
         }
       }
