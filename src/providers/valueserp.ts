@@ -3,7 +3,9 @@ import { AnySerpError } from '../types.js';
 
 const VALUESERP_BASE = 'https://api.valueserp.com/search';
 
-const SEARCH_TYPE_MAP: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos'];
+
+const SEARCH_TYPE_MAP: Partial<Record<SearchType, string>> = {
   web: 'web',
   images: 'images',
   news: 'news',
@@ -42,15 +44,15 @@ export function createValueSerpAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'valueserp',
 
-    supportsType(): boolean {
-      return true;
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
       const params: Record<string, string> = {
         q: request.query,
-        search_type: SEARCH_TYPE_MAP[type],
+        search_type: SEARCH_TYPE_MAP[type]!,
       };
 
       if (request.num) params.num = String(request.num);

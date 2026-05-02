@@ -3,11 +3,14 @@ import { AnySerpError } from '../types.js';
 
 const SERPAPI_BASE = 'https://serpapi.com/search.json';
 
-const ENGINE_MAP: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos', 'places'];
+
+const ENGINE_MAP: Partial<Record<SearchType, string>> = {
   web: 'google',
   images: 'google_images',
   news: 'google_news',
   videos: 'google_videos',
+  places: 'google_places',
 };
 
 const DATE_MAP: Record<string, string> = {
@@ -40,14 +43,14 @@ export function createSerpApiAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'serpapi',
 
-    supportsType(): boolean {
-      return true;
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
       const params: Record<string, string> = {
-        engine: ENGINE_MAP[type],
+        engine: ENGINE_MAP[type]!,
         q: request.query,
       };
 
@@ -111,6 +114,25 @@ export function createSerpApiAdapter(apiKey: string): SearchAdapter {
             channel: r.channel?.name,
             thumbnail: r.thumbnail?.static,
             datePublished: r.date,
+          });
+        }
+      } else if (type === 'places') {
+        for (const [i, r] of (data.local_results || []).entries()) {
+          results.push({
+            position: r.position || i + 1,
+            title: r.title || '',
+            url: r.website || '',
+            description: r.address || '',
+            thumbnail: r.thumbnail,
+            address: r.address,
+            phone: r.phone,
+            rating: r.rating,
+            reviewCount: r.reviews,
+            placeType: r.type,
+            hours: r.hours,
+            coordinates: r.gps_coordinates
+              ? { lat: r.gps_coordinates.latitude, lng: r.gps_coordinates.longitude }
+              : undefined,
           });
         }
       }

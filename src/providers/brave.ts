@@ -3,7 +3,9 @@ import { AnySerpError } from '../types.js';
 
 const BRAVE_API_BASE = 'https://api.search.brave.com/res/v1';
 
-const TYPE_ENDPOINTS: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos'];
+
+const TYPE_ENDPOINTS: Partial<Record<SearchType, string>> = {
   web: '/web/search',
   images: '/images/search',
   news: '/news/search',
@@ -45,13 +47,13 @@ export function createBraveAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'brave',
 
-    supportsType(): boolean {
-      return true;
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
-      const endpoint = TYPE_ENDPOINTS[type];
+      const endpoint = TYPE_ENDPOINTS[type]!;
       const params: Record<string, string> = { q: request.query };
 
       if (request.num) params.count = String(request.num);

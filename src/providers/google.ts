@@ -3,11 +3,10 @@ import { AnySerpError } from '../types.js';
 
 const GOOGLE_CSE_BASE = 'https://www.googleapis.com/customsearch/v1';
 
-const TYPE_MAP: Record<SearchType, string | undefined> = {
-  web: undefined,
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images'];
+
+const TYPE_MAP: Partial<Record<SearchType, string>> = {
   images: 'image',
-  news: undefined,   // CSE doesn't have a dedicated news type
-  videos: undefined,  // CSE doesn't have a dedicated video type
 };
 
 const DATE_MAP: Record<string, string> = {
@@ -42,7 +41,7 @@ export function createGoogleAdapter(apiKey: string, engineId: string): SearchAda
     name: 'google',
 
     supportsType(type: SearchType): boolean {
-      return type === 'web' || type === 'images';
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {

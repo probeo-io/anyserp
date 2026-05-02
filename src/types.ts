@@ -13,7 +13,7 @@ export interface SearchRequest {
   includeAiOverview?: boolean;
 }
 
-export type SearchType = 'web' | 'images' | 'news' | 'videos';
+export type SearchType = 'web' | 'images' | 'news' | 'videos' | 'places';
 
 export type DateRange = 'day' | 'week' | 'month' | 'year';
 
@@ -93,6 +93,14 @@ export interface SearchResult {
   // Video-specific
   duration?: string;
   channel?: string;
+  // Places-specific
+  address?: string;
+  phone?: string;
+  rating?: number;
+  reviewCount?: number;
+  placeType?: string;
+  hours?: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 export interface KnowledgePanel {

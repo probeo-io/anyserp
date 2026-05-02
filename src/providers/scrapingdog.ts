@@ -3,11 +3,12 @@ import { AnySerpError } from '../types.js';
 
 const SCRAPINGDOG_BASE = 'https://api.scrapingdog.com';
 
-const ENDPOINT_MAP: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news'];
+
+const ENDPOINT_MAP: Partial<Record<SearchType, string>> = {
   web: '/google',
   images: '/google_images',
   news: '/google_news',
-  videos: '/google', // videos come as part of regular results
 };
 
 export function createScrapingDogAdapter(apiKey: string): SearchAdapter {
@@ -35,12 +36,12 @@ export function createScrapingDogAdapter(apiKey: string): SearchAdapter {
     name: 'scrapingdog',
 
     supportsType(type: SearchType): boolean {
-      return type === 'web' || type === 'images' || type === 'news';
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
-      const endpoint = ENDPOINT_MAP[type];
+      const endpoint = ENDPOINT_MAP[type]!;
       const params: Record<string, string> = {
         query: request.query,
       };

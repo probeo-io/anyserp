@@ -3,6 +3,8 @@ import { AnySerpError } from '../types.js';
 
 const SEARCHCANS_API_BASE = 'https://www.searchcans.com/api/search';
 
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'news'];
+
 export function createSearchCansAdapter(apiKey: string): SearchAdapter {
   async function makeRequest(body: Record<string, unknown>): Promise<any> {
     const res = await fetch(SEARCHCANS_API_BASE, {
@@ -27,7 +29,7 @@ export function createSearchCansAdapter(apiKey: string): SearchAdapter {
     name: 'searchcans',
 
     supportsType(type: SearchType): boolean {
-      return type === 'web' || type === 'news';
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {

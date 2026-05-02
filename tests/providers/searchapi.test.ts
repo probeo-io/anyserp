@@ -23,10 +23,13 @@ describe('SearchAPI adapter', () => {
     expect(createSearchApiAdapter('k').name).toBe('searchapi');
   });
 
-  it('supports all search types', () => {
+  it('supports all search types including places', () => {
     const a = createSearchApiAdapter('k');
     expect(a.supportsType('web')).toBe(true);
+    expect(a.supportsType('images')).toBe(true);
+    expect(a.supportsType('news')).toBe(true);
     expect(a.supportsType('videos')).toBe(true);
+    expect(a.supportsType('places')).toBe(true);
   });
 
   // ─── Request formation ──────────────────────────────────────────────
@@ -422,5 +425,46 @@ describe('SearchAPI adapter', () => {
       expect(err).toBeInstanceOf(AnySerpError);
       expect((err as AnySerpError).metadata.provider_name).toBe('searchapi');
     }
+  });
+
+  // ─── Places ─────────────────────────────────────────────────────────
+
+  it('sets engine=google_places for places search', async () => {
+    mockFetch({ local_results: [] });
+    const a = createSearchApiAdapter('k');
+    await a.search({ query: 'tacos', type: 'places' });
+    const url = new URL(fetchSpy.mock.calls[0][0] as string);
+    expect(url.searchParams.get('engine')).toBe('google_places');
+  });
+
+  it('maps local_results to SearchResult with places fields', async () => {
+    mockFetch({
+      local_results: [{
+        title: 'Taqueria El Farolito',
+        website: 'https://elfaro.com',
+        address: '2950 24th St, San Francisco, CA',
+        phone: '+1 415-641-0758',
+        rating: 4.5,
+        reviews: 1200,
+        type: 'Mexican restaurant',
+        hours: 'Open ⋅ Closes 2 AM',
+        thumbnail: 'https://example.com/taco.jpg',
+        gps_coordinates: { latitude: 37.7527, longitude: -122.4153 },
+      }],
+    });
+    const a = createSearchApiAdapter('k');
+    const res = await a.search({ query: 'tacos', type: 'places' });
+
+    expect(res.results).toHaveLength(1);
+    const r = res.results[0];
+    expect(r.title).toBe('Taqueria El Farolito');
+    expect(r.url).toBe('https://elfaro.com');
+    expect(r.address).toBe('2950 24th St, San Francisco, CA');
+    expect(r.phone).toBe('+1 415-641-0758');
+    expect(r.rating).toBe(4.5);
+    expect(r.reviewCount).toBe(1200);
+    expect(r.placeType).toBe('Mexican restaurant');
+    expect(r.hours).toBe('Open ⋅ Closes 2 AM');
+    expect(r.coordinates).toEqual({ lat: 37.7527, lng: -122.4153 });
   });
 });

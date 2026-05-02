@@ -3,11 +3,14 @@ import { AnySerpError } from '../types.js';
 
 const SERPER_API_BASE = 'https://google.serper.dev';
 
-const TYPE_ENDPOINTS: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos', 'places'];
+
+const TYPE_ENDPOINTS: Partial<Record<SearchType, string>> = {
   web: '/search',
   images: '/images',
   news: '/news',
   videos: '/videos',
+  places: '/places',
 };
 
 const DATE_MAP: Record<string, string> = {
@@ -40,13 +43,13 @@ export function createSerperAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'serper',
 
-    supportsType(): boolean {
-      return true; // supports all types
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
-      const endpoint = TYPE_ENDPOINTS[type];
+      const endpoint = TYPE_ENDPOINTS[type]!;
 
       const body: Record<string, unknown> = { q: request.query };
       if (request.num) body.num = request.num;
@@ -107,6 +110,22 @@ export function createSerperAdapter(apiKey: string): SearchAdapter {
             channel: r.channel,
             thumbnail: r.imageUrl,
             datePublished: r.date,
+          });
+        }
+      } else if (type === 'places') {
+        for (const [i, r] of (data.places || []).entries()) {
+          results.push({
+            position: i + 1,
+            title: r.title || '',
+            url: r.website || '',
+            description: r.address || '',
+            thumbnail: r.imageUrl,
+            address: r.address,
+            phone: r.phoneNumber,
+            rating: r.rating,
+            reviewCount: r.ratingCount,
+            placeType: r.type,
+            hours: r.hours,
           });
         }
       }

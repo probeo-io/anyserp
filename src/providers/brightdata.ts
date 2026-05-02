@@ -3,8 +3,9 @@ import { AnySerpError } from '../types.js';
 
 const BRIGHTDATA_API_BASE = 'https://api.brightdata.com/request';
 
-const TBM_MAP: Record<SearchType, string | undefined> = {
-  web: undefined,
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos'];
+
+const TBM_MAP: Partial<Record<SearchType, string>> = {
   images: 'isch',
   news: 'nws',
   videos: 'vid',
@@ -57,8 +58,8 @@ export function createBrightDataAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'brightdata',
 
-    supportsType(): boolean {
-      return true;
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {

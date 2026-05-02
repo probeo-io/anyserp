@@ -24,12 +24,13 @@ describe('Serper adapter', () => {
     expect(adapter.name).toBe('serper');
   });
 
-  it('supports all search types', () => {
+  it('supports all search types including places', () => {
     const adapter = createSerperAdapter('test-key');
     expect(adapter.supportsType('web')).toBe(true);
     expect(adapter.supportsType('images')).toBe(true);
     expect(adapter.supportsType('news')).toBe(true);
     expect(adapter.supportsType('videos')).toBe(true);
+    expect(adapter.supportsType('places')).toBe(true);
   });
 
   // ─── Request formation ──────────────────────────────────────────────
@@ -340,6 +341,54 @@ describe('Serper adapter', () => {
     mockFetch({});
     const adapter = createSerperAdapter('k');
     const res = await adapter.search({ query: 'test' });
+    expect(res.results).toEqual([]);
+  });
+
+  // ─── Places ─────────────────────────────────────────────────────────
+
+  it('uses /places endpoint for places search', async () => {
+    mockFetch({ places: [] });
+    const adapter = createSerperAdapter('k');
+    await adapter.search({ query: 'coffee shops', type: 'places' });
+    const [url] = fetchSpy.mock.calls[0];
+    expect(url).toBe('https://google.serper.dev/places');
+  });
+
+  it('maps places results to SearchResult with places fields', async () => {
+    mockFetch({
+      places: [{
+        title: 'Blue Bottle Coffee',
+        address: '300 Webster St, Oakland, CA',
+        rating: 4.6,
+        ratingCount: 850,
+        type: 'Coffee shop',
+        phoneNumber: '+1 510-653-3394',
+        website: 'https://bluebottlecoffee.com',
+        imageUrl: 'https://example.com/img.jpg',
+        hours: 'Open ⋅ Closes 6 PM',
+      }],
+    });
+    const adapter = createSerperAdapter('k');
+    const res = await adapter.search({ query: 'coffee', type: 'places' });
+
+    expect(res.results).toHaveLength(1);
+    const r = res.results[0];
+    expect(r.title).toBe('Blue Bottle Coffee');
+    expect(r.url).toBe('https://bluebottlecoffee.com');
+    expect(r.description).toBe('300 Webster St, Oakland, CA');
+    expect(r.address).toBe('300 Webster St, Oakland, CA');
+    expect(r.phone).toBe('+1 510-653-3394');
+    expect(r.rating).toBe(4.6);
+    expect(r.reviewCount).toBe(850);
+    expect(r.placeType).toBe('Coffee shop');
+    expect(r.hours).toBe('Open ⋅ Closes 6 PM');
+    expect(r.thumbnail).toBe('https://example.com/img.jpg');
+  });
+
+  it('handles empty places array', async () => {
+    mockFetch({ places: [] });
+    const adapter = createSerperAdapter('k');
+    const res = await adapter.search({ query: 'nowhere', type: 'places' });
     expect(res.results).toEqual([]);
   });
 });

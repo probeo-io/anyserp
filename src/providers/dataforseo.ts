@@ -15,11 +15,11 @@ const COUNTRY_LOCATION_MAP: Record<string, number> = {
   eg: 2818, ng: 2566, ke: 2404,
 };
 
-const SE_TYPE_MAP: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'news'];
+
+const SE_TYPE_MAP: Partial<Record<SearchType, string>> = {
   web: 'organic',
-  images: 'organic',  // images come as items in organic results
   news: 'news',
-  videos: 'organic',  // videos come as items in organic results
 };
 
 export function createDataForSeoAdapter(login: string, password: string): SearchAdapter {
@@ -73,7 +73,7 @@ export function createDataForSeoAdapter(login: string, password: string): Search
     name: 'dataforseo',
 
     supportsType(type: SearchType): boolean {
-      return type === 'web' || type === 'news';
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {

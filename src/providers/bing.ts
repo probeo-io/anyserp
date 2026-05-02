@@ -3,7 +3,9 @@ import { AnySerpError } from '../types.js';
 
 const BING_API_BASE = 'https://api.bing.microsoft.com/v7.0';
 
-const TYPE_ENDPOINTS: Record<SearchType, string> = {
+const SUPPORTED_TYPES: readonly SearchType[] = ['web', 'images', 'news', 'videos'];
+
+const TYPE_ENDPOINTS: Partial<Record<SearchType, string>> = {
   web: '/search',
   images: '/images/search',
   news: '/news/search',
@@ -40,13 +42,13 @@ export function createBingAdapter(apiKey: string): SearchAdapter {
   return {
     name: 'bing',
 
-    supportsType(): boolean {
-      return true;
+    supportsType(type: SearchType): boolean {
+      return SUPPORTED_TYPES.includes(type);
     },
 
     async search(request: SearchRequest): Promise<SearchResponse> {
       const type = request.type || 'web';
-      const endpoint = TYPE_ENDPOINTS[type];
+      const endpoint = TYPE_ENDPOINTS[type]!;
       const params: Record<string, string> = { q: request.query };
 
       if (request.num) params.count = String(request.num);

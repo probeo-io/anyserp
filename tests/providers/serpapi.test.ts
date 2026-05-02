@@ -23,12 +23,13 @@ describe('SerpAPI adapter', () => {
     expect(createSerpApiAdapter('k').name).toBe('serpapi');
   });
 
-  it('supports all search types', () => {
+  it('supports all search types including places', () => {
     const a = createSerpApiAdapter('k');
     expect(a.supportsType('web')).toBe(true);
     expect(a.supportsType('images')).toBe(true);
     expect(a.supportsType('news')).toBe(true);
     expect(a.supportsType('videos')).toBe(true);
+    expect(a.supportsType('places')).toBe(true);
   });
 
   // ─── Request formation ──────────────────────────────────────────────
@@ -285,5 +286,54 @@ describe('SerpAPI adapter', () => {
     const a = createSerpApiAdapter('k');
     const res = await a.search({ query: 'nothing' });
     expect(res.results).toEqual([]);
+  });
+
+  // ─── Places ─────────────────────────────────────────────────────────
+
+  it('sets engine=google_places for places search', async () => {
+    mockFetch({ local_results: [] });
+    const a = createSerpApiAdapter('k');
+    await a.search({ query: 'pizza', type: 'places' });
+    const url = new URL(fetchSpy.mock.calls[0][0] as string);
+    expect(url.searchParams.get('engine')).toBe('google_places');
+  });
+
+  it('maps local_results to SearchResult with places fields', async () => {
+    mockFetch({
+      local_results: [{
+        position: 1,
+        title: 'Joe\'s Pizza',
+        website: 'https://joespizza.com',
+        address: '7 Carmine St, New York, NY',
+        phone: '+1 212-366-1182',
+        rating: 4.7,
+        reviews: 3200,
+        type: 'Pizza restaurant',
+        hours: 'Open ⋅ Closes 4 AM',
+        thumbnail: 'https://example.com/pizza.jpg',
+        gps_coordinates: { latitude: 40.7305, longitude: -74.0026 },
+      }],
+    });
+    const a = createSerpApiAdapter('k');
+    const res = await a.search({ query: 'pizza', type: 'places' });
+
+    expect(res.results).toHaveLength(1);
+    const r = res.results[0];
+    expect(r.title).toBe('Joe\'s Pizza');
+    expect(r.url).toBe('https://joespizza.com');
+    expect(r.address).toBe('7 Carmine St, New York, NY');
+    expect(r.phone).toBe('+1 212-366-1182');
+    expect(r.rating).toBe(4.7);
+    expect(r.reviewCount).toBe(3200);
+    expect(r.placeType).toBe('Pizza restaurant');
+    expect(r.hours).toBe('Open ⋅ Closes 4 AM');
+    expect(r.coordinates).toEqual({ lat: 40.7305, lng: -74.0026 });
+  });
+
+  it('handles missing gps_coordinates gracefully', async () => {
+    mockFetch({ local_results: [{ position: 1, title: 'Place', address: '123 St' }] });
+    const a = createSerpApiAdapter('k');
+    const res = await a.search({ query: 'place', type: 'places' });
+    expect(res.results[0].coordinates).toBeUndefined();
   });
 });
