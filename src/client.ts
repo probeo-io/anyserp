@@ -1,5 +1,5 @@
-import type { AnySerpConfig, SearchAdapter, SearchRequest, SearchResponse, SearchType } from './types.js';
-import { AnySerpError } from './types.js';
+import type { FallbackSearchResult, ParallelSearchResult, ProviderFailure, AnySerpConfig, SearchAdapter, SearchRequest, SearchResponse, SearchType } from './types.js';
+import { AnySerpError, AnySerpAggregateError } from './types.js';
 import { createSerperAdapter } from './providers/serper.js';
 import { createSerpApiAdapter } from './providers/serpapi.js';
 import { createGoogleAdapter } from './providers/google.js';
@@ -155,6 +155,16 @@ export class AnySerp {
       return adapter.search(req);
     }
 
+    // An explicit default is authoritative for unprefixed searches.
+    if (this.config.defaultProvider !== undefined) {
+      const name = this.config.defaultProvider;
+      const adapter = this.registry.get(name);
+      if (!adapter || !adapter.supportsType(req.type || 'web')) {
+        throw new AnySerpError(400, 'Default provider is unavailable for the requested search type', { provider_name: name });
+      }
+      return adapter.search(req);
+    }
+
     // No provider specified — use first available that supports the type
     const type = req.type || 'web';
     for (const adapter of this.registry.all()) {
@@ -173,39 +183,51 @@ export class AnySerp {
     request: SearchRequest,
     providers?: string[],
   ): Promise<SearchResponse> {
+    return (await this.searchWithFallbackDetailed(request, providers)).response;
+  }
+
+  async searchWithFallbackDetailed(
+    request: SearchRequest,
+    providers?: string[],
+  ): Promise<FallbackSearchResult> {
     const providerList = providers || this.registry.names();
     const type = request.type || 'web';
-
-    let lastError: Error | undefined;
-
+    const failures: ProviderFailure[] = [];
     for (const name of providerList) {
       const adapter = this.registry.get(name);
       if (!adapter || !adapter.supportsType(type)) continue;
-
       try {
-        return await adapter.search(request);
-      } catch (err) {
-        lastError = err as Error;
+        const response = await adapter.search({ ...request });
+        return { response, failures };
+      } catch (error) {
+        failures.push({ provider: name, error });
       }
     }
-
-    throw lastError || new AnySerpError(400, 'No providers available for fallback');
+    if (failures.length) throw new AnySerpAggregateError(failures);
+    throw new AnySerpError(400, 'No providers available for fallback');
   }
 
-  /**
-   * Search all configured providers and return combined results.
-   */
+  /** Search all eligible providers, retaining the legacy successful-response array. */
   async searchAll(request: SearchRequest): Promise<SearchResponse[]> {
+    return (await this.searchAllDetailed(request)).responses;
+  }
+
+  async searchAllDetailed(request: SearchRequest): Promise<ParallelSearchResult> {
     const type = request.type || 'web';
-    const adapters = this.registry.all().filter(a => a.supportsType(type));
-
-    const results = await Promise.allSettled(
-      adapters.map(a => a.search(request)),
-    );
-
-    return results
-      .filter((r): r is PromiseFulfilledResult<SearchResponse> => r.status === 'fulfilled')
-      .map(r => r.value);
+    const entries = this.registry.names()
+      .map(name => ({ name, adapter: this.registry.get(name)! }))
+      .filter(({ adapter }) => adapter.supportsType(type));
+    const results = await Promise.allSettled(entries.map(({ adapter }) => {
+      const copy = { ...request };
+      return Promise.resolve().then(() => adapter.search(copy));
+    }));
+    const responses: SearchResponse[] = [];
+    const failures: ProviderFailure[] = [];
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') responses.push(result.value);
+      else failures.push({ provider: entries[index].name, error: result.reason });
+    });
+    return { responses, failures };
   }
 
   /**

@@ -157,6 +157,32 @@ export class AnySerpError extends Error {
   }
 }
 
+export interface ProviderFailure {
+  provider: string;
+  error: unknown;
+}
+
+export interface FallbackSearchResult {
+  response: SearchResponse;
+  failures: ProviderFailure[];
+}
+
+export interface ParallelSearchResult {
+  responses: SearchResponse[];
+  failures: ProviderFailure[];
+}
+
+export class AnySerpAggregateError extends AnySerpError {
+  readonly failures: readonly Readonly<ProviderFailure>[];
+
+  constructor(failures: readonly ProviderFailure[]) {
+    const last = failures[failures.length - 1]?.error;
+    super(last instanceof AnySerpError ? last.code : 502, 'All attempted search providers failed');
+    this.name = 'AnySerpAggregateError';
+    this.failures = Object.freeze(failures.map(failure => Object.freeze({ ...failure })));
+  }
+}
+
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 export interface ProviderConfig {
@@ -170,6 +196,8 @@ export interface DataForSeoConfig {
 }
 
 export interface AnySerpConfig {
+  /** Registered provider name for unprefixed search; unset preserves registration order. */
+  defaultProvider?: string;
   serper?: ProviderConfig;
   serpapi?: ProviderConfig;
   google?: ProviderConfig;
