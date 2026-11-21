@@ -2,12 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [Unreleased] — 0.6.0 source
 
-### Added
+- Add explicit `defaultProvider` for unprefixed searches.
+- Add detailed fallback/parallel results and ordered provider failure diagnostics.
+- Throw `AnySerpAggregateError` when all attempted fallback providers fail; preserve legacy success shapes.
+- Isolate adapter request copies and capture synchronous parallel failures.
+- Document places, kgmid, runtime compatibility, and independent port versions.
 
-- Exhaustive test suite (199 tests across 12 files, covering all 11 providers)
-- "See Also" cross-links to related packages
+## [0.5.2]
+
+- Add optional `kgmid` to places results.
+
+## [0.5.1]
+
+- Correct SearchAPI places engine to `google_maps` and SerpAPI to `google_local`.
+
+## [0.5.0]
+
+- Add places search for Serper, SerpAPI, and SearchAPI; declare supported types on all providers.
+
+## [0.4.1]
+
+- Expand provider adapter fixtures and documentation examples/cross-links.
 
 ## [0.4.0] - 2026-03-26
 

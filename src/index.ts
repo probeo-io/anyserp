@@ -1,5 +1,8 @@
 export { AnySerp, AnySerpRegistry } from './client.js';
 export type {
+  ProviderFailure,
+  FallbackSearchResult,
+  ParallelSearchResult,
   SearchRequest,
   SearchResponse,
   SearchResult,
@@ -17,7 +20,7 @@ export type {
   AnySerpErrorMetadata,
   DataForSeoConfig,
 } from './types.js';
-export { AnySerpError } from './types.js';
+export { AnySerpError, AnySerpAggregateError } from './types.js';
 export {
   createSerperAdapter,
   createSerpApiAdapter,

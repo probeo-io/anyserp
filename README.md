@@ -9,7 +9,7 @@ Unified SERP API router. Route search requests across Google, Bing, Brave, and m
 
 ## Why anyserp?
 
-One SDK, 11 SERP providers. Switch providers without changing your code. Every provider returns the same unified response format, so your application logic stays clean regardless of which provider is behind the request. Your API keys, your infrastructure, zero routing fees. Built-in fallback routing means if one provider fails, the next is tried automatically.
+One SDK, 11 SERP providers. Switch providers without changing your code. Every provider returns the same unified response format, so your application logic stays clean regardless of which provider is behind the request. Your API keys, your infrastructure, zero routing fees. Use `searchWithFallback()` to try the next eligible provider after a failure; `search()` makes a single provider attempt.
 
 ## Install
 
@@ -38,19 +38,19 @@ console.log(results.results[0].title, results.results[0].url);
 
 ## Supported Providers
 
-| Provider | Env Var | Web | Images | News | Videos |
-|----------|---------|-----|--------|------|--------|
-| Serper | `SERPER_API_KEY` | Yes | Yes | Yes | Yes |
-| SerpAPI | `SERPAPI_API_KEY` | Yes | Yes | Yes | Yes |
-| Google CSE | `GOOGLE_CSE_API_KEY` + `GOOGLE_CSE_ENGINE_ID` | Yes | Yes | No | No |
-| Bing | `BING_API_KEY` | Yes | Yes | Yes | Yes |
-| Brave | `BRAVE_API_KEY` | Yes | Yes | Yes | Yes |
-| DataForSEO | `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD` | Yes | No | Yes | No |
-| SearchAPI | `SEARCHAPI_API_KEY` | Yes | Yes | Yes | Yes |
-| ValueSERP | `VALUESERP_API_KEY` | Yes | Yes | Yes | Yes |
-| ScrapingDog | `SCRAPINGDOG_API_KEY` | Yes | Yes | Yes | No |
-| Bright Data | `BRIGHTDATA_API_KEY` | Yes | Yes | Yes | Yes |
-| SearchCans | `SEARCHCANS_API_KEY` | Yes | No | Yes | No |
+| Provider | Env Var | Web | Images | News | Videos | Places |
+|----------|---------|-----|--------|------|--------|--------|
+| Serper | `SERPER_API_KEY` | Yes | Yes | Yes | Yes | Yes |
+| SerpAPI | `SERPAPI_API_KEY` | Yes | Yes | Yes | Yes | Yes |
+| Google CSE | `GOOGLE_CSE_API_KEY` + `GOOGLE_CSE_ENGINE_ID` | Yes | Yes | No | No | No |
+| Bing | `BING_API_KEY` | Yes | Yes | Yes | Yes | No |
+| Brave | `BRAVE_API_KEY` | Yes | Yes | Yes | Yes | No |
+| DataForSEO | `DATAFORSEO_LOGIN` + `DATAFORSEO_PASSWORD` | Yes | No | Yes | No | No |
+| SearchAPI | `SEARCHAPI_API_KEY` | Yes | Yes | Yes | Yes | Yes |
+| ValueSERP | `VALUESERP_API_KEY` | Yes | Yes | Yes | Yes | No |
+| ScrapingDog | `SCRAPINGDOG_API_KEY` | Yes | Yes | Yes | No | No |
+| Bright Data | `BRIGHTDATA_API_KEY` | Yes | Yes | Yes | Yes | No |
+| SearchCans | `SEARCHCANS_API_KEY` | Yes | No | Yes | No | No |
 
 ## Provider Routing
 
@@ -230,3 +230,38 @@ If anyserp is useful to you, consider giving it a star. It helps others discover
 ## License
 
 MIT
+
+## Explicit default provider (0.6.0 source)
+
+Set `new AnySerp({ defaultProvider: 'brave' })` to keep unprefixed `search()` routing stable when more API keys are added. Use a registered provider name, not an alias. A recognized `provider/query` prefix or alias overrides this default. An empty, unavailable, or type-incompatible default rejects with code 400 without a provider request. When unset, legacy routing uses the first registered provider supporting the requested type. This option does not reorder fallback or parallel searches.
+
+## Provider failure diagnostics
+
+`searchWithFallbackDetailed(request, providers?)` returns `{ response, failures }`, including failures before the first success. When every attempted provider fails, both fallback methods throw `AnySerpAggregateError` (also an `AnySerpError`) with ordered `.failures`. Its code comes from the final attempted error if that error is an `AnySerpError`, otherwise 502. No eligible fallback provider gives code 400. Unconfigured and unsupported entries are skipped.
+
+`searchAllDetailed(request)` returns `{ responses, failures }` in registration order within each list, including synchronous adapter errors. `searchAll()` retains its successful-response array and returns `[]` when all providers fail or none qualify. Each failure is `{ provider, error }`; diagnostics belong to the individual request. Raw error objects may contain sensitive upstream details: inspect and redact before persisting them. The library does not log them automatically.
+
+```typescript
+const { responses, failures } = await client.searchAllDetailed({ query: 'typescript' });
+// Inspect provider identities without persisting raw upstream errors.
+console.log(responses.length, failures.map(failure => failure.provider));
+```
+
+Fallback and parallel methods retain their existing request semantics: they do not apply `config.defaults` or parse query prefixes. Fallback provider lists use registered names.
+
+## Places search
+
+Serper, SerpAPI, and SearchAPI support `type: 'places'`; other adapters do not. SearchAPI uses `google_maps`, SerpAPI uses `google_local`, and Serper uses `/places` internally.
+
+```typescript
+const places = await client.search({ query: 'serper/coffee in Austin', type: 'places' });
+console.log(places.results.map(place => ({ name: place.title, kgmid: place.kgmid })));
+```
+
+Place results may include address, phone, rating, reviewCount, placeType, hours, coordinates, and `kgmid` (Google Knowledge Graph identifier). Fields are optional and depend on upstream data; `kgmid` is not guaranteed.
+
+## Runtime and ports
+
+The JavaScript package targets ES2022 and uses global `fetch` and `process.env`; existing checks cover Node 18, 20, and 22. Cloudflare Workers need Node.js compatibility (`nodejs_compat`) because provider registration reads `process.env`, even when a provider key is supplied explicitly. Supply Worker secrets through explicit configuration; do not assume bindings are automatically environment variables.
+
+The Python and Go ports are independently versioned. Their existence does not imply JavaScript feature or release parity. Consumer upgrades and publication remain separate from this source cleanup.
